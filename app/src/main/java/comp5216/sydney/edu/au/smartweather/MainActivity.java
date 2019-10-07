@@ -21,8 +21,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.alibaba.fastjson.JSON;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -36,6 +39,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+
 
 /**
  * Main Activity for Smart Weather app.
@@ -70,6 +74,8 @@ public class MainActivity extends AppCompatActivity {
 
         //TODO: current location request
         LocationsWeather current = new LocationsWeather("-33.865143", "151.209900");
+        //LocationsWeather current = new LocationsWeather("42.3601", "-71.0589");
+
         arrayOfLocations.add(0, current);
 
         //TODO: save to database
@@ -89,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
             // TODO
             // UI界面的更新等相关操作
             TextView tv1 = (TextView) findViewById(R.id.test);
-            tv1.setText(arrayOfLocations.get(0).getJson());
+            tv1.setText(arrayOfLocations.get(0).toString());
+            tv1.setMovementMethod(ScrollingMovementMethod.getInstance());
         }
     };
 
@@ -109,18 +116,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 if (result != null) {
                     location.setJson(result);
-                    //TODO: json处理
-                    /*
-            JSONArray jsonArray=new JSONArray(result);
-            for(int i=0;i<jsonArray.length();i++){
-                HeadNews headnews=new HeadNews();
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
-                headnews.setTitle(jsonObject.getString("title"));
-                headnews.setContent(jsonObject.getString("content"));
-                headnews.setConut(jsonObject.getString("conut"));
-                headnews.setImage(jsonObject.getString("image"));
-                list.add(headnews);
-            }*/
+                    //json处理
+                    JsonHandler a = new JsonHandler();
+                    a.jsonHandler(location, result);
                     //TODO: save to database
                 }
             }
@@ -172,4 +170,6 @@ public class MainActivity extends AppCompatActivity {
         } else Log.d("json", "Error");
         return result;
     }
+
+
 }
