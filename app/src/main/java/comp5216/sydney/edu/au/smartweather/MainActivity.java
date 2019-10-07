@@ -25,17 +25,12 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
