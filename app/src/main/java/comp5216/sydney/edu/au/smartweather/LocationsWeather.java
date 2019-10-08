@@ -36,10 +36,14 @@ public class LocationsWeather {
     public LocationsWeather(String latitude, String longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
-        json = null;
         arrayOfCurrent = new ArrayList<WeatherInfo>();
         arrayOfHour = new ArrayList<WeatherInfo>();
         arrayOfDaily = new ArrayList<WeatherInfo>();
+        json = null;
+        hourSummary = null;
+        hourIcon = null;
+        dailySummary = null;
+        dailyIcon = null;
     }
 
     public String getLatitude() {

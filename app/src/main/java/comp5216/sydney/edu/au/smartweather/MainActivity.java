@@ -18,6 +18,7 @@ package comp5216.sydney.edu.au.smartweather;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,14 +26,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -42,7 +36,11 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     // Define variables
+    LocationsWeather current;
     ArrayList<LocationsWeather> arrayOfLocations;
+    LocationDB db;
+    LocationDao locationDao;
+    int apiRequestCount = 0;
 
     // Define Constants
     private final String KEY = "6a700b02d5c29e9cb8e7b41308c994d1";
@@ -65,15 +63,18 @@ public class MainActivity extends AppCompatActivity {
         // Construct the data source
         arrayOfLocations = new ArrayList<LocationsWeather>();
 
-        //TODO: read from database
+        // Create an instance of ToDoItemDB and Dao
+        db = LocationDB.getDatabase(this.getApplication().getApplicationContext());
+        locationDao = db.locationDao();
+        // read from database
+        readItemsFromDatabase();
+        updateUI();
 
         //TODO: current location request
-        LocationsWeather current = new LocationsWeather("-33.865143", "151.209900");
+        current = new LocationsWeather("-33.865143", "151.209900");
         //LocationsWeather current = new LocationsWeather("42.3601", "-71.0589");
 
-        arrayOfLocations.add(0, current);
 
-        //TODO: save to database
 
         // 开启一个子线程，进行网络操作，等待有返回结果，使用handler通知UI
         new Thread(networkTask).start();
@@ -87,11 +88,7 @@ public class MainActivity extends AppCompatActivity {
             Bundle data = msg.getData();
             String val = data.getString("value");
             Log.i("mylog", "请求结果为-->" + val);
-            // TODO
-            // UI界面的更新等相关操作
-            TextView tv1 = (TextView) findViewById(R.id.test);
-            tv1.setText(arrayOfLocations.get(0).toString());
-            tv1.setMovementMethod(ScrollingMovementMethod.getInstance());
+            updateUI();
         }
     };
 
@@ -101,70 +98,121 @@ public class MainActivity extends AppCompatActivity {
     Runnable networkTask = new Runnable() {
         @Override
         public void run() {
-            String result = null;
-            // http request.网络请求相关操作
-            for (LocationsWeather location : arrayOfLocations) {
-                try {
-                    result = HttpClient_GET(location.getLatitude(), location.getLongitude());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                if (result != null) {
-                    location.setJson(result);
-                    //json处理
-                    JsonHandler a = new JsonHandler();
-                    a.jsonHandler(location, result);
-                    //TODO: save to database
-                }
-            }
             Message msg = new Message();
             Bundle data = new Bundle();
-            data.putString("value", "请求结果");
+            String result = null;
+            // http request.网络请求相关操作
+            try {
+                HTTPClient hc = new HTTPClient();
+                result = hc.HttpClient_GET(current.getLatitude(), current.getLongitude(), KEY);
+            } catch (Exception e) {
+                e.printStackTrace();
+                data.putString("value", "NetworkError");
+            }
+            if (result != null) {
+                apiRequestCount++;
+                JsonHandler jh = new JsonHandler();
+                jh.jsonHandler(current, result);
+                data.putString("value", "200");
+                if (arrayOfLocations.isEmpty()) {
+                    arrayOfLocations.add(current);
+                } else {
+                    arrayOfLocations.set(0, current);
+                    for (int i = 1; i < arrayOfLocations.size(); i++) {
+                        try {
+                            HTTPClient hc = new HTTPClient();
+                            result = hc.HttpClient_GET(arrayOfLocations.get(i).getLatitude(),
+                                    arrayOfLocations.get(i).getLongitude(), KEY);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            data.putString("value", "NetworkError");
+                        }
+                        if (result != null) {
+                            apiRequestCount++;
+                            arrayOfLocations.get(i).setJson(result);
+                            //json处理
+                            jh.jsonHandler(arrayOfLocations.get(i), result);
+                            data.putString("value", "200");
+                        } else {
+                            data.putString("value", "Error");
+                        }
+                    }
+                }
+
+            } else {
+                data.putString("value", "Error");
+            }
+            Log.i("Api Request Count", String.valueOf(apiRequestCount));
+            // save to database
+            saveItemsToDatabase();
             msg.setData(data);
             handler.sendMessage(msg);
         }
     };
 
     /**
-     * 天气API连接
-     *
-     * @param latitude
-     * @param longitude
-     * @return
-     * @throws Exception
+     * Read locations from local database and store into ArrayList
      */
-    public String HttpClient_GET(String latitude, String longitude) throws Exception {
-        String result = null;
-        List<LocationsWeather> list = new LinkedList<LocationsWeather>();
-        String path = "https://api.darksky.net/forecast/";
-        StringBuilder sb = new StringBuilder(path);
-        //key
-        sb.append(KEY);
-        sb.append("/");
-        //latitude
-        sb.append(latitude);
-        sb.append(",");
-        //longitude
-        sb.append(longitude);
-        //units
-        sb.append("?units=si");
-        System.out.println(sb);
-
-        //1.得到浏览器
-        HttpClient httpClient = new DefaultHttpClient();//浏览器
-        //2指定请求方式
-        HttpGet httpGet = new HttpGet(sb.toString());
-        //3.执行请求
-        HttpResponse httpResponse = httpClient.execute(httpGet);
-        //4 判断请求是否成功
-        int status = httpResponse.getStatusLine().getStatusCode();
-
-        if (status == 200) {
-            //读取响应内容
-            result = EntityUtils.toString(httpResponse.getEntity(), "UTF-8");
-        } else Log.d("json", "Error");
-        return result;
+    private void readItemsFromDatabase() {
+        //Use asynchronous task to run query on the background and wait for result
+        try {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    //read locations from database
+                    List<Location> locationsFromDB = locationDao.listAll();
+                    arrayOfLocations = new ArrayList<LocationsWeather>();
+                    if (locationsFromDB != null & locationsFromDB.size() > 0) {
+                        for (Location item : locationsFromDB) {
+                            arrayOfLocations.add(item.getLocationInfo());
+                            //TODO: location name
+                            Log.i("SQLite read item", "ID: " + item.getLocationID()
+                                    + " Name: " + item.getLocationInfo().getLatitude());
+                        }
+                    }
+                    return null;
+                }
+            }.execute().get();
+        } catch (Exception ex) {
+            Log.e("readItemsFromDatabase", ex.getStackTrace().toString());
+        }
     }
 
+    /**
+     * Save locations to local database from ArrayList
+     */
+    private void saveItemsToDatabase() {
+        //Use asynchronous task to run query on the background to avoid locking UI
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                //delete all locations and re-insert
+                locationDao.deleteAll();
+                for (LocationsWeather location : arrayOfLocations) {
+                    Location item = new Location(location);
+                    locationDao.insert(item);
+                    //TODO: location name
+                    if (location.getDailySummary() != null)
+                        Log.i("SQLite saved item", location.getDailySummary());
+                    else
+                        Log.i("SQLite saved item", location.getLatitude());
+                }
+                return null;
+            }
+        }.execute();
+    }
 
+    /**
+     * UI界面的更新等相关操作
+     */
+    private void updateUI() {
+        // TODO: UI界面的更新等相关操作
+        TextView tv1 = (TextView) findViewById(R.id.test);
+        tv1.setMovementMethod(ScrollingMovementMethod.getInstance());
+        if (!arrayOfLocations.isEmpty()) {
+            tv1.setText(arrayOfLocations.get(0).toString());
+        }
+
+
+    }
 }

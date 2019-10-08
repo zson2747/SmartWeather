@@ -39,4 +39,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.10'
     implementation 'com.alibaba:fastjson:1.2.61'
     implementation 'com.alibaba:fastjson:1.1.71.android'
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+    implementation 'com.google.code.gson:gson:2.8.5'
 }
