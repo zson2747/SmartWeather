@@ -27,6 +27,13 @@
             android:scrollbars="vertical"
             android:text="Hello World!" />
 
+        <Button
+            android:id="@+id/notification"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="Notification"
+            android:text="Call notification" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -20,9 +20,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -33,6 +38,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -116,6 +122,24 @@ public class MainActivity extends AppCompatActivity {
 
         // 开启一个子线程，进行网络操作，等待有返回结果，使用handler通知UI
         //new Thread(networkTask).start();
+
+
+        //Construct notification channel when SDK higher tha 26
+        if (android.os.Build.VERSION.SDK_INT>26) {
+
+            String channelid = "SmartWeather";
+            String channelname = "WeatherNotification";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel notificationchannel =
+                    new NotificationChannel(channelid, channelname, importance);
+            NotificationManager notificationmanager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationmanager.createNotificationChannel(notificationchannel);
+        }
+
+
+
     }
 
 
@@ -392,6 +416,90 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return isConnected;
+    }
+
+    //Sending notification
+    public void Notification(View view) {
+
+        //Get this context
+        Context context = this.getApplication().getApplicationContext();
+
+        //Temp setting, need to be comment out later
+        NotificationDataProvider ndp = new NotificationDataProvider();
+        ndp.setTimeNoti (System.currentTimeMillis(),context);
+        ndp.setDateNoti ("2020/20/20",context);
+        ndp.setLocationNoti ("Sydney australia",context);
+        ndp.setWeatherNoti ("Rainy",context);
+        ndp.setUmbrellaNoti ("Bring Your Umbrella",context);
+        ndp.setClothRecommendationNoti ("Wear Thick Cloth",context);
+
+        //Get data from SharedPreferences
+        Long time
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getLong("TimeNoti", 0);
+        String date
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getString("DateNoti", "date");
+        String location
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getString("LocationNoti", "location");
+        String weather
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getString("WeatherNoti", "weather");
+        String umbrella
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getString("UmbrellaNoti", "umbrella");
+        String clothrecommendation
+                = context.getSharedPreferences("wd", MODE_PRIVATE)
+                        .getString("ClothRecommendationNoti", "clothrecommendation");
+
+        //Construct BigTextStyle
+        NotificationCompat.BigTextStyle bigtextstyle = new NotificationCompat.BigTextStyle()
+                .bigText("Weather detail: " + weather
+                                + "\nUmbrella alert: " + umbrella
+                                + "\nCloth recommendation: " + clothrecommendation);
+
+        //Construct notification compat builder
+        NotificationCompat.Builder notificationbuilder =
+                new NotificationCompat.Builder(this, "SmartWeather")
+
+                        //attributes
+
+                        //Notification method
+                        //(DEFAULT_VIBRATE/DEFAULT_SOUND/DEFAULT_LIGHTS/DEFAULT_ALL)
+                        .setDefaults(NotificationCompat.DEFAULT_SOUND)
+                        //Text on ticker
+                        .setTicker("It's " + weather)
+                        //Icon
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        //Abstract, used as date
+                        .setSubText(date)
+                        //Notification time
+                        .setWhen(time)
+                        //Topic, used as location
+                        .setContentTitle(location)
+                        //Weather detail, umbrella alert and cloth recommendation
+                        .setStyle(bigtextstyle)
+                        //Clean when click on the notification
+                        .setAutoCancel(true);
+
+        //Set priority when SDK version under 27
+        if (android.os.Build.VERSION.SDK_INT<27){
+            notificationbuilder.setPriority(NotificationCompat.PRIORITY_MAX);
+        }
+
+        //Construct intent
+        Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pendingintent =
+                PendingIntent.getActivity(this, 0, intent, 0);
+        notificationbuilder.setContentIntent(pendingintent);
+
+        //Send notification
+        NotificationManager notificationmanager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //Using same notification id will make new notification replace old one
+        //set a different notification id to keep several notifications shown together
+        notificationmanager.notify(0, notificationbuilder.build());
     }
 
 }
