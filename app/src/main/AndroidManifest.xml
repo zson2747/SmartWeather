@@ -14,10 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <receiver android:name=".WeatherWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="comp5216.sydney.edu.au.smartweather.UPDATE_ALL"/>
+                <action android:name="comp5216.sydney.edu.au.smartweather.UPDATE_ALL" />
             </intent-filter>
 
             <meta-data

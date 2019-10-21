@@ -1,5 +1,12 @@
 <resources>
-    <string name="app_name">Smart Weather</string>
-    <string name="appwidget_text">EXAMPLE</string>
-    <string name="add_widget">Add widget</string>
+    <string name="app_name">SmartWeather</string>
+    <string name="nav_header_title">Smart Weather</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_donot_forget_function">Do Not Forget Umbrella</string>
+    <string name="menu_umbrella_bluetooth">Umbrella Bluetooth</string>
+    <string name="menu_manage_location">Manage Locations</string>
+    <string name="menu_temperature_unit">Temperature Unit</string>
+    <string name="menu_pressure">Pressure Unit</string>
+    <string name="menu_visibility">Visibility Unit</string>
+    <string name="menu_wind_unit">Wind Unit</string>
 </resources>

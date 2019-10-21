@@ -19,8 +19,14 @@ package comp5216.sydney.edu.au.smartweather;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -48,6 +54,9 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -75,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY = "6a700b02d5c29e9cb8e7b41308c994d1";
     private static final int MY_LOCATION_REQUEST_CODE = 1000;
 
+    private AppBarConfiguration mAppBarConfiguration;
     /**
      * Initialize the activity
      *
@@ -138,10 +148,34 @@ public class MainActivity extends AppCompatActivity {
             notificationmanager.createNotificationChannel(notificationchannel);
         }
 
-
-
+        FloatingActionButton fab = findViewById(R.id.add_location_but);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home, R.id.nav_donot_forget_function, R.id.nav_manage_location,
+                R.id.nav_wind_unit, R.id.nav_umbrella_bluetooth, R.id.nav_temperature_unit)
+                .setDrawerLayout(drawer)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
+    }
 
     Handler handler = new Handler() {
         @Override
@@ -303,15 +337,15 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "location permission denied", Toast.LENGTH_LONG).show();
         }
         // TODO: UI界面的更新等相关操作
-        if (checkLocationNull(currentLatitude, currentLongtitude)) {
-            TextView tv3 = (TextView) findViewById(R.id.test3);
-            tv3.setText(currentLatitude.toString());
-        }
-        TextView tv1 = (TextView) findViewById(R.id.test);
-        tv1.setMovementMethod(ScrollingMovementMethod.getInstance());
-        if (!arrayOfLocations.isEmpty()) {
-            tv1.setText(arrayOfLocations.get(0).toString());
-        }
+//        if (checkLocationNull(currentLatitude, currentLongtitude)) {
+//            TextView tv3 = (TextView) findViewById(R.id.test3);
+//            tv3.setText(currentLatitude.toString());
+//        }
+//        TextView tv1 = (TextView) findViewById(R.id.test);
+//        tv1.setMovementMethod(ScrollingMovementMethod.getInstance());
+//        if (!arrayOfLocations.isEmpty()) {
+//            tv1.setText(arrayOfLocations.get(0).toString());
+//        }
 
 
     }

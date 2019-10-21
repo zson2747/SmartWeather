@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+    <!--        TODO: ADD NAME FOR EACH FRAGMENT-->
+    <fragment
+        android:id="@+id/nav_home"
+        android:label="@string/menu_home"
+        android:name="comp5216.sydney.edu.au.smartweather.ui.home.HomeFragment"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_donot_forget_function"
+        android:label="@string/menu_donot_forget_function"
+        tools:layout="@layout/dont_forget_umbrella" />
+
+    <fragment
+        android:id="@+id/nav_umbrella_bluetooth"
+        android:label="@string/menu_umbrella_bluetooth"
+        tools:layout="@layout/fragment_umbrella_bluetooth" />
+
+    <fragment
+        android:id="@+id/nav_manage_location"
+        android:label="@string/menu_manage_location"
+        tools:layout="@layout/fragment_manage_location" />
+
+    <fragment
+        android:id="@+id/nav_temperature_unit"
+        android:label="@string/menu_temperature_unit"
+        tools:layout="@layout/fragment_temperature_unit" />
+
+    <fragment
+        android:id="@+id/nav_wind_unit"
+        android:label="@string/menu_wind_unit"
+        tools:layout="@layout/fragment_manage_location" />
+</navigation>

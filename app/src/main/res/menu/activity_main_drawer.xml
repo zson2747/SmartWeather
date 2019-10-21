@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:icon="@drawable/home"
+            android:title="@string/menu_home"
+            android:id="@+id/home"/>
+        <item
+            android:id="@+id/dont_forget_function"
+            android:icon="@drawable/dont_forget"
+            android:title="@string/menu_donot_forget_function" />
+        <item
+            android:id="@+id/umbrellaBluetooth"
+            android:icon="@drawable/bluetooth"
+            android:title="@string/menu_umbrella_bluetooth" />
+        <item
+            android:id="@+id/manage_location"
+            android:icon="@drawable/location"
+            android:title="@string/menu_manage_location" />
+        <item
+            android:id="@+id/temperatureUnit"
+            android:icon="@drawable/temperature"
+            android:title="@string/menu_temperature_unit" />
+        <item
+            android:id="@+id/windUnit"
+            android:icon="@drawable/wind"
+            android:title="@string/menu_wind_unit"/>
+        <item
+            android:icon="@drawable/pressure"
+            android:title="@string/menu_pressure"
+            android:id="@+id/pressureUnit"/>
+        <item
+            android:id="@+id/visibility"
+            android:title="@string/menu_visibility"
+            android:icon="@drawable/visibility"/>
+    </group>
+
+</menu>
