@@ -148,6 +148,9 @@ public class MainActivity extends AppCompatActivity {
             notificationmanager.createNotificationChannel(notificationchannel);
         }
 
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         FloatingActionButton fab = findViewById(R.id.add_location_but);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
